@@ -1,6 +1,6 @@
 FROM debian:12
 
-DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 ENV SKIP_TESTS=1
 
 # 切换 Debian 镜像源，更新包列表并安装依赖
