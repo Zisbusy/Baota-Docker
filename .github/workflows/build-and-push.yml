@@ -18,7 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/baota-docker
+  IMAGE_NAME: ghcr.io/zisbusy/baota-docker
 
 jobs:
   build-and-push:
