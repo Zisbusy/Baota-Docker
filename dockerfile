@@ -23,9 +23,6 @@ COPY ["phpmyadmin.sh", "/lnmp/"]
 RUN dos2unix /bt.sh && dos2unix /init_mysql.sh
 
 # 下载并安装宝塔面板及 lnmp 环境
-RUN curl -sSO https://download.bt.cn/install/installStable_12.sh \
-    && bash install_panel.sh \
-
 RUN wget -4 --no-check-certificate -O install.sh https://download.bt.cn/install/installStable_12.sh \
     && echo y | bash install_panel.sh -P 8888 --ssl-disable \
     && curl -o /lnmp/nginx.sh https://download.bt.cn/install/3/nginx.sh \
