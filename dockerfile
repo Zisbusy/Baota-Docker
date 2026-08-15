@@ -1,7 +1,7 @@
 FROM debian:12
 
 # 切换 Debian 镜像源，更新包列表并安装依赖
-RUN sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources && \
+RUN sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources \
     && apt-get update && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends \
     locales \
