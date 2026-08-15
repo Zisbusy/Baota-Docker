@@ -1,5 +1,5 @@
 # 构建并推送多平台镜像到 GHCR（x86_64 & arm64）
-name: Build and push multi-arch Docker image
+name: Build Docker image
 
 on:
   workflow_dispatch:
