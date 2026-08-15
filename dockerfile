@@ -1,9 +1,9 @@
 FROM debian:12
 
-# 切换 Debian 镜像源为腾讯云源，更新包列表并安装依赖
-RUN sed -i 's/deb.debian.org/mirrors.tencent.com/g' /etc/apt/sources.list.d/debian.sources \
-    && apt update && apt upgrade -y \
-    && apt install -y \
+# 切换 Debian 镜像源，更新包列表并安装依赖
+RUN sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources && \
+    && apt-get update && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends \
     locales \
     wget iproute2 openssh-server libgd-dev cmake make gcc g++ autoconf \
     libsodium-dev libonig-dev libssh2-1-dev libc-ares-dev libaio-dev sudo curl dos2unix \
@@ -12,7 +12,7 @@ RUN sed -i 's/deb.debian.org/mirrors.tencent.com/g' /etc/apt/sources.list.d/debi
     libltdl-dev zlib1g-dev libglib2.0-0 libglib2.0-dev libkrb5-dev libpq-dev libpq5 gettext libcap-dev \
     libc-client2007e-dev psmisc patch git e2fsprogs libxslt1-dev xz-utils libgd3 libwebp-dev libvpx-dev \
     libfreetype6-dev libjpeg62-turbo libjpeg62-turbo-dev iptables libudev-dev libldap2-dev \
-    && apt clean \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/* 
 
 # 复制脚本
