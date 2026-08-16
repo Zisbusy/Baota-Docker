@@ -27,13 +27,15 @@ RUN dos2unix /bt.sh && dos2unix /init_mysql.sh
 # 下载并安装宝塔面板及 lnmp 环境
 RUN wget -4 --no-check-certificate -O install.sh https://download.bt.cn/install/installStable_12.sh \
     && echo y | bash install.sh -P 8888 --ssl-disable \
+    && curl -o /lnmp/lib.sh https://download.bt.cn/install/3/lib.sh
+    && sh /lnmp/nginx.sh
     && curl -o /lnmp/nginx.sh https://download.bt.cn/install/3/nginx.sh \
     && sh /lnmp/nginx.sh install 1.28 \ 
     && curl -o /lnmp/php.sh https://download.bt.cn/install/4/php.sh \
-    && sh /lnmp/php.sh install 8.3 \
+    && sh /lnmp/php.sh install 8.2 \
     && curl -o /lnmp/mysql.sh https://download.bt.cn/install/4/mysql.sh \
-    && sh /lnmp/mysql.sh install 8.0 \
-    && sh /lnmp/phpmyadmin.sh install 5.2 \
+    && sh /lnmp/mysql.sh install 5.7 \
+    && sh /lnmp/phpmyadmin.sh install 5.0 \
     && rm -rf /lnmp \
     && rm -rf /www/server/php/83/src \
     && rm -rf /www/server/mysql/mysql-test \
