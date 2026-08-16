@@ -28,7 +28,7 @@ RUN dos2unix /bt.sh && dos2unix /init_mysql.sh
 RUN wget -4 --no-check-certificate -O install.sh https://download.bt.cn/install/installStable_12.sh \
     && echo y | bash install.sh -P 8888 --ssl-disable \
     && curl -o /lnmp/lib.sh https://download.bt.cn/install/3/lib.sh \
-    && sh /lnmp/nginx.sh \
+    && sh /lnmp/lib.sh \
     && curl -o /lnmp/nginx.sh https://download.bt.cn/install/3/nginx.sh \
     && sh /lnmp/nginx.sh install 1.28 \ 
     && curl -o /lnmp/php.sh https://download.bt.cn/install/4/php.sh \
