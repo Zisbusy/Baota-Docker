@@ -1,4 +1,3 @@
-# 构建并推送多平台镜像到 GHCR（x86_64 & arm64）
 name: Build Docker image
 
 on:
@@ -16,44 +15,104 @@ env:
   IMAGE_NAME: ghcr.io/zisbusy/baota-docker
 
 jobs:
-  build-and-push:
+  # 预处理 ref_name，避免分支名包含 / 时无法作为镜像 tag
+  prepare:
     runs-on: ubuntu-latest
+    outputs:
+      ref_tag: ${{ steps.sanitize.outputs.ref_tag }}
+    steps:
+      - name: Sanitize ref name for image tag
+        id: sanitize
+        run: |
+          ref="${{ github.ref_name }}"
+          ref="${ref//\//-}"
+          echo "ref_tag=$ref" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: prepare
+    strategy:
+      matrix:
+        include:
+          - arch: amd64
+            platform: linux/amd64
+            # GitHub 普通 x86_64 Runner
+            runner: ubuntu-latest
+          - arch: arm64
+            platform: linux/arm64
+            # GitHub 原生 ARM64 Runner
+            # 如果您的仓库/组织没有该标签，请改成自己的 self-hosted ARM runner 标签
+            runner: ubuntu-24.04-arm
+
+    runs-on: ${{ matrix.runner }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up QEMU (for cross-platform builds)
-        uses: docker/setup-qemu-action@v3
-
+      # 不再需要 QEMU，因为每个 job 只构建自己原生架构的镜像
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to GitHub Container Registry (GHCR)
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push multi-arch image
+      - name: Build and push single-arch image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ matrix.platform }}
           push: true
-          # tags: latest, commit SHA and ref name (branch or tag)
           tags: |
-            ${{ env.IMAGE_NAME }}:latest
-            ${{ env.IMAGE_NAME }}:${{ github.sha }}
-            ${{ env.IMAGE_NAME }}:${{ github.ref_name }}
-          # use registry cache to speed repeated builds
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          
-          build-args: |
-            # add build-time args here if needed, e.g.
-            # HTTP_PROXY=${{ secrets.HTTP_PROXY }}
+            ${{ env.IMAGE_NAME }}:latest-${{ matrix.arch }}
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}-${{ matrix.arch }}
+            ${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.ref_tag }}-${{ matrix.arch }}
+          # 两个架构使用不同的 GHA 缓存 scope，避免互相覆盖
+          cache-from: type=gha,scope=build-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=build-${{ matrix.arch }}
+
+  merge:
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create and push multi-arch manifests
+        env:
+          REF_TAG: ${{ needs.prepare.outputs.ref_tag }}
+        run: |
+          set -euo pipefail
+
+          # 合并 latest
+          docker buildx imagetools create \
+            --tag "$IMAGE_NAME:latest" \
+            "$IMAGE_NAME:latest-amd64" \
+            "$IMAGE_NAME:latest-arm64"
+
+          # 合并 commit SHA
+          docker buildx imagetools create \
+            --tag "$IMAGE_NAME:${{ github.sha }}" \
+            "$IMAGE_NAME:${{ github.sha }}-amd64" \
+            "$IMAGE_NAME:${{ github.sha }}-arm64"
+
+          # 合并分支/标签名
+          docker buildx imagetools create \
+            --tag "$IMAGE_NAME:${REF_TAG}" \
+            "$IMAGE_NAME:${REF_TAG}-amd64" \
+            "$IMAGE_NAME:${REF_TAG}-arm64"
+
       - name: Image info
         run: |
           echo "Image pushed: $IMAGE_NAME"
