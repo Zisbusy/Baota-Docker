@@ -58,11 +58,14 @@ RUN echo btpanel | bt 6 \
     && echo "root:btpaneldocker" | chpasswd
 
 # 打包宝塔面板，并清除www
-RUN bt 2 \
-    && tar -zcf /www.tar.gz /www \
+RUN tar -zcf /www.tar.gz /www \
+    && bt 2 \
     && rm -rf /www
 
 ENTRYPOINT ["/bin/sh","-c","/bt.sh"]
+
+# 默认挂载目录
+VOLUME ["/www"]
 
 # 暴漏特定端口
 EXPOSE 22 80 443 888 3306 8888
