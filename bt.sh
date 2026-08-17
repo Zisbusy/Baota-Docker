@@ -71,6 +71,7 @@ soft_start(){
 
 # 初始化 MySQL
 init_mysql(){
+    echo "初始化 MySQL..."
     if [ "${O_pl}" != "docker_btlamp_d12" ] && [ "${O_pl}" != "docker_btlnmp_d12" ];then
         return
     fi
