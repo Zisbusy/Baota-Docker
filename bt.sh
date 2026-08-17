@@ -1,13 +1,22 @@
 #!/bin/bash
+# ==========================================
+# 宝塔面板 Docker 容器入口脚本 (bt.sh)
+# 功能：初始化环境、恢复面板数据、启动 MySQL 及其他服务
+# ==========================================
+
+echo "Docker 版本宝塔面板启动..."
+echo "设置系统变量..."
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
+# 定义基础路径变量
 init_path=/etc/init.d
 Root_Path=`cat /var/bt_setupPath.conf`
 Setup_Path=$Root_Path/server/mysql
 Data_Path=$Root_Path/server/data
 O_pl=$(cat /www/server/panel/data/o.pl)
 
+# 备份数据库
 backup_database() {
   if [ -d "${Data_Path}" ] && [ ! -z "$(ls -A ${Data_Path})" ]; then
     if [ ! -d "${Setup_Path}" ] || [ -z "$(ls -A ${Setup_Path})" ]; then
@@ -17,11 +26,13 @@ backup_database() {
   fi
 }
 
+# 恢复面板数据：如果 /www 目录为空或缺失，则从压缩包解压
 restore_panel_data() {
   if [ -f /www.tar.gz ]; then
     if [ ! -d /www ] || [ -z "$(ls -A /www)" ] || [ ! -d /www/server/panel ] || [ -z "$(ls -A /www/server/panel)" ] || [ ! -d /www/server/panel/pyenv ] || [ -z "$(ls -A /www/server/panel/pyenv)" ]; then
+      echo "恢复面板数据..."
       tar xzf /www.tar.gz -C / --skip-old-files
-      rm -rf /www.tar.gz
+      # rm -rf /www.tar.gz
     fi
   fi
 }
@@ -55,6 +66,7 @@ soft_start(){
     /usr/sbin/sshd -D &
 }
 
+# 初始化 MySQL
 init_mysql(){
     if [ "${O_pl}" != "docker_btlamp_d12" ] && [ "${O_pl}" != "docker_btlnmp_d12" ];then
         return
