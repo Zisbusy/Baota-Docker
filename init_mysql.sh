@@ -27,15 +27,22 @@ EOF
     ln -sf ${Setup_Path}/lib/mysql /usr/lib/mysql
     ln -sf ${Setup_Path}/include/mysql /usr/include/mysql
     /etc/init.d/mysqld start
+    sleep 3
 
-    mysqlpwd=`cat /dev/urandom | head -n 16 | md5sum | head -c 16`
-    ${Setup_Path}/bin/mysqladmin -u root password "${mysqlpwd}"
+    echo "设置 MySQL 密码..."
+    # 生成随机密码
+    mysqlpwd=$(cat /dev/urandom | tr -dc 'A-Za-z0-9' | head -c 16)
+    # 调用 bt 命令设置 MySQL密码
+    # ${Setup_Path}/bin/mysqladmin -u root password "${mysqlpwd}"
+bt <<EOF
+7
+${mysqlpwd}
+EOF
 
+    # 清理安装残留
     cd "${Setup_Path}"
     rm -f src.tar.gz
     rm -rf src
-    /etc/init.d/mysqld start
-    rm -rf /init_mysql.sh
 }
 
 Mysql_Initialize
