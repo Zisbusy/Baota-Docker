@@ -98,8 +98,8 @@ init_mysql(){
 }
 
 start_mysql(){
-    echo "启动 MySql..."
-    if [ -d "${Setup_Path}" ] && [ -f "${init_path}/mysqld" ];then
+    if ! ${Setup_Path}/bin/mysqladmin ping &>/dev/null && [ -d "${Setup_Path}" ] && [ -f "${init_path}/mysqld" ]; then
+    	echo "启动 MySql..."
         chown -R mysql:mysql ${Data_Path}
         chgrp -R mysql ${Setup_Path}/.
         ${init_path}/mysqld start
