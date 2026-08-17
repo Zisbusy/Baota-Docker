@@ -78,20 +78,20 @@ soft_start(){
 
 # 初始化 MySQL
 init_mysql(){
-    echo "初始化 MySQL"
     if [ "${O_pl}" != "docker_btlamp_d12" ] && [ "${O_pl}" != "docker_btlnmp_d12" ];then
         return
     fi
     if [ -d "${Data_Path}" ]; then
         check_z=$(ls "${Data_Path}")
-        echo "check_z:"
-        echo ${check_z}
+        # echo "check_z:"
+        # echo ${check_z}
         if [[ ! -z "${check_z}" ]]; then
-            echo "check_z is not empty"
+            # check_z is not empty
             return
         fi
     fi
     if [ -f /init_mysql.sh ] && [ -d "${Setup_Path}" ];then
+        echo "初始化 MySQL..."
         sh /init_mysql.sh
         rm -f /init_mysql.sh
     fi
