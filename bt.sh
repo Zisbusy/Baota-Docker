@@ -30,7 +30,7 @@ backup_database() {
 restore_panel_data() {
   if [ -f /www.tar.gz ]; then
     if [ ! -d /www ] || [ -z "$(ls -A /www)" ] || [ ! -d /www/server/panel ] || [ -z "$(ls -A /www/server/panel)" ] || [ ! -d /www/server/panel/pyenv ] || [ -z "$(ls -A /www/server/panel/pyenv)" ]; then
-      echo "恢复面板数据..."
+      echo "初始化面板数据..."
       tar xzf /www.tar.gz -C / --skip-old-files
       # rm -rf /www.tar.gz
     fi
