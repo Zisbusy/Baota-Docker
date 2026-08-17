@@ -42,8 +42,6 @@ restore_panel_data() {
       echo "  默认密码: btpaneldocker"
       echo "=============================================="
       echo ""
-  else
-      echo "非首次启动，跳过恢复"
   fi
 }
 
