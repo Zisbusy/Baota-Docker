@@ -59,7 +59,7 @@ RUN echo btpanel | bt 6 \
 
 # 打包宝塔面板，并清除www、脚本文件
 RUN bt 2 \
-    && tar -zcf /www.tar.gz /www \
+    && tar -zcf /tmp/www.tar.gz /www \
     && rm -rf /www
 
 ENTRYPOINT ["/bin/sh","-c","/bt.sh"]
