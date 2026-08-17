@@ -69,7 +69,7 @@ soft_start(){
     ${init_path}/bt start
 
     pkill crond
-    /sbin/crond
+    /usr/sbin/cron
 
     chmod 600 /etc/ssh/ssh_host_*
     /usr/sbin/sshd -D &
