@@ -4,8 +4,8 @@
 # 功能：初始化环境、恢复面板数据、启动 MySQL 及其他服务
 # ==========================================
 
-echo "Docker 版本宝塔面板启动..."
-echo "设置系统变量..."
+echo "Docker 版本宝塔面板"
+echo "设置系统变量"
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
@@ -28,7 +28,8 @@ backup_database() {
 # 初始化面板逻辑
 restore_panel_data() {
   if [ ! -f /www/.panel_restored ]; then
-      echo "首次启动，初始化面板数据..."
+      echo "首次启动"
+      echo "初始化面板数据"
       # 直接覆盖写入，已有文件自动跳过，绝不删除任何现有数据
       tar xzf /tmp/www.tar.gz -C / --skip-old-files
       # 创建标记文件
@@ -47,7 +48,7 @@ restore_panel_data() {
 
 # 扫描并启动所有服务
 soft_start(){
-    echo "扫描并启动所有服务..."
+    echo "扫描并启动所有服务"
     init_scripts=$(ls ${init_path})
     for script in ${init_scripts}; do
         case "${script}" in
@@ -77,7 +78,7 @@ soft_start(){
 
 # 初始化 MySQL
 init_mysql(){
-    echo "初始化 MySQL..."
+    echo "初始化 MySQL"
     if [ "${O_pl}" != "docker_btlamp_d12" ] && [ "${O_pl}" != "docker_btlnmp_d12" ];then
         return
     fi
