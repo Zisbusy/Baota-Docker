@@ -108,12 +108,12 @@ start_mysql(){
     fi
 }
 
-restore_panel_data > 2>/dev/null
+restore_panel_data 2>/dev/null
 O_pl=$(cat /www/server/panel/data/o.pl)
-backup_database > 2>/dev/null
-is_empty_Data > 2>/dev/null
-init_mysql > 2>/dev/null
-start_mysql > 2>/dev/null
-soft_start > 2>/dev/null
+backup_database 2>/dev/null
+is_empty_Data 2>/dev/null
+init_mysql 2>/dev/null
+start_mysql 2>/dev/null
+soft_start 2>/dev/null
 #tail -f 2>/dev/null
 ${init_path}/bt log
