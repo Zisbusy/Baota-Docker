@@ -17,6 +17,11 @@ RUN sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list.d/debia
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* 
 
+# 设置 locales
+RUN sed -i 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
+    && locale-gen en_US.UTF-8 \
+    && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
+
 # 复制脚本
 COPY ["bt.sh", "init_mysql.sh", "/"]
 COPY ["phpmyadmin.sh", "/lnmp/"]
