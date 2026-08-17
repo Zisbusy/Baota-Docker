@@ -5,7 +5,7 @@
 # ==========================================
 
 echo "Docker 版本宝塔面板"
-echo "设置系统变量"
+echo "设置系统变量..."
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
@@ -29,7 +29,7 @@ backup_database() {
 restore_panel_data() {
   if [ ! -f /www/.panel_restored ]; then
       echo "首次启动"
-      echo "初始化面板数据"
+      echo "初始化面板数据..."
       # 直接覆盖写入，已有文件自动跳过，绝不删除任何现有数据
       tar xzf /tmp/www.tar.gz -C / --skip-old-files
       # 创建标记文件
@@ -48,7 +48,7 @@ restore_panel_data() {
 
 # 扫描并启动所有服务
 soft_start(){
-    echo "扫描并启动所有服务"
+    echo "扫描并启动所有服务..."
     init_scripts=$(ls ${init_path})
     for script in ${init_scripts}; do
         case "${script}" in
@@ -98,6 +98,7 @@ init_mysql(){
 }
 
 start_mysql(){
+    echo "启动 MySql..."
     if [ -d "${Setup_Path}" ] && [ -f "${init_path}/mysqld" ];then
         chown -R mysql:mysql ${Data_Path}
         chgrp -R mysql ${Setup_Path}/.
