@@ -33,7 +33,15 @@ restore_panel_data() {
       tar xzf /tmp/www.tar.gz -C / --skip-old-files
       # 创建标记文件
       touch /www/.panel_restored
-      echo "初始化完成"
+      echo ""
+      echo "=============================================="
+      echo "  宝塔面板初始化成功"
+      echo "=============================================="
+      echo "  管理地址: http://<您的IP>:8888/btpanel"
+      echo "  默认用户: btpanel"
+      echo "  默认密码: btpaneldocker"
+      echo "=============================================="
+      echo ""
   else
       echo "非首次启动，跳过恢复"
   fi
