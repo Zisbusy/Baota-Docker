@@ -13,5 +13,5 @@ Docker中运行宝塔面板
  - MySQL数据目录：/www/server/data
  - vhost文件路径：/www/server/panel/vhost
  - 面板管理地址：http://您的ip地址:8888/btpanel
- - 默认用户：username
- - 默认密码：password
+ - 默认用户：btpanel
+ - 默认密码：btpaneldocker
