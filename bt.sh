@@ -14,7 +14,6 @@ init_path=/etc/init.d
 Root_Path=`cat /var/bt_setupPath.conf`
 Setup_Path=$Root_Path/server/mysql
 Data_Path=$Root_Path/server/data
-O_pl=$(cat /www/server/panel/data/o.pl)
 
 # 备份数据库
 backup_database() {
@@ -26,19 +25,23 @@ backup_database() {
   fi
 }
 
-# 恢复面板数据：如果 /www 目录为空或缺失，则从压缩包解压
+# 初始化面板逻辑
 restore_panel_data() {
-  if [ -f /www.tar.gz ]; then
-    if [ ! -d /www ] || [ -z "$(ls -A /www)" ] || [ ! -d /www/server/panel ] || [ -z "$(ls -A /www/server/panel)" ] || [ ! -d /www/server/panel/pyenv ] || [ -z "$(ls -A /www/server/panel/pyenv)" ]; then
-      echo "初始化面板数据..."
-      tar xzf /www.tar.gz -C / --skip-old-files
-      # rm -rf /www.tar.gz
-    fi
+  if [ ! -f /www/.panel_restored ]; then
+      echo "首次启动，初始化面板数据..."
+      # 直接覆盖写入，已有文件自动跳过，绝不删除任何现有数据
+      tar xzf /tmp/www.tar.gz -C / --skip-old-files
+      # 创建标记文件
+      touch /www/.panel_restored
+      echo "初始化完成"
+  else
+      echo "非首次启动，跳过恢复"
   fi
 }
 
+# 扫描并启动所有服务
 soft_start(){
-    # 扫描并启动所有服务
+    echo "扫描并启动所有服务..."
     init_scripts=$(ls ${init_path})
     for script in ${init_scripts}; do
         case "${script}" in
@@ -99,6 +102,7 @@ start_mysql(){
 }
 
 restore_panel_data > /dev/null
+O_pl=$(cat /www/server/panel/data/o.pl)
 backup_database > /dev/null
 is_empty_Data > /dev/null
 init_mysql > /dev/null
