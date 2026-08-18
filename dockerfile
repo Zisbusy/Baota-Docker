@@ -1,6 +1,6 @@
 FROM debian:12
 
-ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Shanghai
 
 # 切换 Debian 镜像源，更新包列表并安装依赖
 RUN sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources \
