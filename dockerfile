@@ -49,7 +49,7 @@ RUN wget -4 --no-check-certificate -O install.sh https://download.bt.cn/install/
     && rm -rf /www/server/data \
     && rm -rf /www/server/nginx/src \
     && echo "docker_btlnmp_d12" > /www/server/panel/data/o.pl \
-    && echo '["memuA", "memuAsite", "memuAdatabase", "memuAcontrol", "memuAfiles", "memuAlogs", "memuAxterm", "memuAcrontab", "memuAsoft", "memuAconfig", "dologin", "memu_btwaf", "memuAssl"]' > /www/server/panel/config/show_menu.json \
+    && echo '["memuA", "memuAsite", "memuAdatabase", "memuAcontrol", "memuAfiles", "memuAlogs", "memuAxterm", "memuAcrontab", "memuAsoft", "memuAconfig", "dologin", "memuAssl"]' > /www/server/panel/config/show_menu.json \
     && apt clean \
     && rm -rf /var/lib/apt/lists/* \
     && chmod +x /bt.sh \
