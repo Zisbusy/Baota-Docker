@@ -39,7 +39,7 @@ RUN wget -4 --no-check-certificate -O install.sh https://download.bt.cn/install/
     && curl -o /lnmp/php.sh https://download.bt.cn/install/4/php.sh \
     && sh /lnmp/php.sh install 8.2 \
     && curl -o /lnmp/mysql.sh https://download.bt.cn/install/4/mysql.sh \
-    && sh /lnmp/mysql.sh install 5.7 \
+    && sh /lnmp/mysql.sh install 8.0 \
     && sh /lnmp/phpmyadmin.sh install 5.0 \
     && rm -rf /lnmp \
     && rm -rf /www/server/php/83/src \
