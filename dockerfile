@@ -35,8 +35,10 @@ RUN wget -4 --no-check-certificate -O install.sh https://download.bt.cn/install/
     && echo y | bash install.sh -P 8888 --ssl-disable
 
 # 安装基础依赖库
-# RUN curl -o /lnmp/lib.sh https://download.bt.cn/install/3/lib.sh \
-#     && sh /lnmp/lib.sh
+RUN curl -o /lnmp/lib.sh https://download.bt.cn/install/3/lib.sh \
+    # 修复硬编码的 x86_64 路径为通用多架构路径
+    && sed -i 's|/usr/lib/x86_64-linux-gnu/|/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/|g' /lnmp/lib.sh \
+    && sh /lnmp/lib.sh
 
 # 安装 Nginx
 RUN curl -o /lnmp/nginx.sh https://download.bt.cn/install/3/nginx.sh \
