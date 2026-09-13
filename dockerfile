@@ -34,9 +34,8 @@ RUN dos2unix /bt.sh && dos2unix /init_mysql.sh
 RUN wget -4 --no-check-certificate -O install.sh https://download.bt.cn/install/installStable_12.sh \
     && echo y | bash install.sh -P 8888 --ssl-disable
 
-# 安装基础依赖库
+# 安装基础依赖库（修复硬编码的 x86_64 路径为通用多架构路径）
 RUN curl -o /lnmp/lib.sh https://download.bt.cn/install/3/lib.sh \
-    # 修复硬编码的 x86_64 路径为通用多架构路径
     && sed -i 's|/usr/lib/x86_64-linux-gnu/|/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/|g' /lnmp/lib.sh \
     && sh /lnmp/lib.sh
 
@@ -44,8 +43,10 @@ RUN curl -o /lnmp/lib.sh https://download.bt.cn/install/3/lib.sh \
 RUN curl -o /lnmp/nginx.sh https://download.bt.cn/install/3/nginx.sh \
     && sh /lnmp/nginx.sh install 1.28
 
-# 安装 PHP 8.2
+# 安装 PHP 8.2（修复 OpenSSL 1.1.1、cURL 架构硬编码）
 RUN curl -o /lnmp/php.sh https://download.bt.cn/install/4/php.sh \
+    && sed -i "s|openssl111-x86_64\.tar\.gz|openssl111-$(uname -m).tar.gz|g" /lnmp/php.sh \
+    && sed -i "s|curl_2-x86_64\.tar\.gz|curl_2-$(uname -m).tar.gz|g" /lnmp/php.sh \
     && sh /lnmp/php.sh install 8.2
 
 # 安装 MySQL 8.0
