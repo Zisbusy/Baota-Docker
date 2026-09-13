@@ -43,7 +43,7 @@ RUN curl -o /lnmp/nginx.sh https://download.bt.cn/install/3/nginx.sh \
     && sh /lnmp/nginx.sh install 1.28
 
 # 安装 PHP 8.2
-RUN curl -o /lnmp/php.sh https://download.bt.cn/install/4/php.sh \
+RUN curl -o /lnmp/php.sh https://download.bt.cn/install/3/php.sh \
     && sh /lnmp/php.sh install 8.2
 
 # 安装 MySQL 8.0
