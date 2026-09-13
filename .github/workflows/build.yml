@@ -4,34 +4,47 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: '镜像版本标签 (例如: v1.2.0)'
-        required: false
-        default: 'latest'
+        description: '自定义镜像版本标签，例如 v1.0 或 1.2'
+        required: true
+        default: 'v1.0'
+        type: string
 
 permissions:
   contents: read
   packages: write
 
 concurrency:
-  group: build-and-push-${{ github.ref }}
+  group: build-and-push-${{ github.ref }}-${{ inputs.version }}
   cancel-in-progress: true
 
 env:
   IMAGE_NAME: ghcr.io/zisbusy/baota-docker
 
 jobs:
-  # 预处理 ref_name，避免分支名包含 / 时无法作为镜像 tag
+  # 预处理 ref_name 和自定义版本，避免包含 / 或大写导致 tag 不合法
   prepare:
     runs-on: ubuntu-latest
     outputs:
       ref_tag: ${{ steps.sanitize.outputs.ref_tag }}
+      version_tag: ${{ steps.sanitize.outputs.version_tag }}
     steps:
-      - name: Sanitize ref name for image tag
+      - name: Sanitize ref name and version for image tag
         id: sanitize
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
           ref="${{ github.ref_name }}"
           ref="${ref//\//-}"
           echo "ref_tag=$ref" >> "$GITHUB_OUTPUT"
+
+          version="$INPUT_VERSION"
+          version="${version//\//-}"
+          version="${version// /-}"
+          version="$(echo "$version" | tr '[:upper:]' '[:lower:]')"
+          if [ -z "$version" ]; then
+            version="v1.0"
+          fi
+          echo "version_tag=$version" >> "$GITHUB_OUTPUT"
 
   build:
     needs: prepare
@@ -40,9 +53,12 @@ jobs:
         include:
           - arch: amd64
             platform: linux/amd64
+            # GitHub 普通 x86_64 Runner
             runner: ubuntu-latest
           - arch: arm64
             platform: linux/arm64
+            # GitHub 原生 ARM64 Runner
+            # 如果您的仓库/组织没有该标签，请改成自己的 self-hosted ARM runner 标签
             runner: ubuntu-24.04-arm
 
     runs-on: ${{ matrix.runner }}
@@ -51,6 +67,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 不再需要 QEMU，因为每个 job 只构建自己原生架构的镜像
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -69,11 +86,11 @@ jobs:
           platforms: ${{ matrix.platform }}
           push: true
           tags: |
-            # 核心修改：使用手动输入的 version，如果为空则默认 latest
-            ${{ env.IMAGE_NAME }}:${{ github.event.inputs.version || 'latest' }}-${{ matrix.arch }}
-            # 保留原有的 commit SHA 和分支名标签
+            ${{ env.IMAGE_NAME }}:latest-${{ matrix.arch }}
             ${{ env.IMAGE_NAME }}:${{ github.sha }}-${{ matrix.arch }}
             ${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.ref_tag }}-${{ matrix.arch }}
+            ${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version_tag }}-${{ matrix.arch }}
+          # 两个架构使用不同的 GHA 缓存 scope，避免互相覆盖
           cache-from: type=gha,scope=build-${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=build-${{ matrix.arch }}
 
@@ -94,29 +111,35 @@ jobs:
       - name: Create and push multi-arch manifests
         env:
           REF_TAG: ${{ needs.prepare.outputs.ref_tag }}
-          # 核心修改：将手动输入的版本号传递给环境变量
-          IMAGE_VERSION: ${{ github.event.inputs.version || 'latest' }}
+          VERSION_TAG: ${{ needs.prepare.outputs.version_tag }}
         run: |
           set -euo pipefail
 
-          # 1. 合并自定义版本标签 (例如: v1.2.0)
+          # 合并 latest
           docker buildx imagetools create \
-            --tag "$IMAGE_NAME:$IMAGE_VERSION" \
-            "$IMAGE_NAME:$IMAGE_VERSION-amd64" \
-            "$IMAGE_NAME:$IMAGE_VERSION-arm64"
+            --tag "$IMAGE_NAME:latest" \
+            "$IMAGE_NAME:latest-amd64" \
+            "$IMAGE_NAME:latest-arm64"
 
-          # 2. 合并 commit SHA 标签
+          # 合并 commit SHA
           docker buildx imagetools create \
             --tag "$IMAGE_NAME:${{ github.sha }}" \
             "$IMAGE_NAME:${{ github.sha }}-amd64" \
             "$IMAGE_NAME:${{ github.sha }}-arm64"
 
-          # 3. 合并分支/标签名标签
+          # 合并分支/标签名
           docker buildx imagetools create \
             --tag "$IMAGE_NAME:${REF_TAG}" \
             "$IMAGE_NAME:${REF_TAG}-amd64" \
             "$IMAGE_NAME:${REF_TAG}-arm64"
 
+          # 合并自定义版本
+          docker buildx imagetools create \
+            --tag "$IMAGE_NAME:${VERSION_TAG}" \
+            "$IMAGE_NAME:${VERSION_TAG}-amd64" \
+            "$IMAGE_NAME:${VERSION_TAG}-arm64"
+
       - name: Image info
         run: |
-          echo "Image pushed: $IMAGE_NAME:$IMAGE_VERSION"
+          echo "Image pushed: $IMAGE_NAME"
+          echo "Version tag: ${{ needs.prepare.outputs.version_tag }}"
