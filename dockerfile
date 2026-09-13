@@ -34,7 +34,7 @@ RUN dos2unix /bt.sh && dos2unix /init_mysql.sh
 RUN wget -4 --no-check-certificate -O install.sh https://download.bt.cn/install/installStable_12.sh \
     && echo y | bash install.sh -P 8888 --ssl-disable
 
-# 安装基础依赖库（修复硬编码的 x86_64 路径为通用多架构路径）
+# 安装基础依赖库
 RUN curl -o /lnmp/lib.sh https://download.bt.cn/install/3/lib.sh \
     && sh /lnmp/lib.sh
 
@@ -42,7 +42,7 @@ RUN curl -o /lnmp/lib.sh https://download.bt.cn/install/3/lib.sh \
 RUN curl -o /lnmp/nginx.sh https://download.bt.cn/install/3/nginx.sh \
     && sh /lnmp/nginx.sh install 1.28
 
-# 安装 PHP 8.2（修复 OpenSSL 1.1.1、cURL 架构硬编码）
+# 安装 PHP 8.2
 RUN curl -o /lnmp/php.sh https://download.bt.cn/install/4/php.sh \
     && sh /lnmp/php.sh install 8.2
 
