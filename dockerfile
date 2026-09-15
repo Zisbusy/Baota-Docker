@@ -47,7 +47,7 @@ RUN curl -o /lnmp/php.sh https://download.bt.cn/install/3/php.sh \
     && sh /lnmp/php.sh install 8.2
 
 # 安装 MySQL 8.0
-RUN curl -o /lnmp/mysql.sh https://download.bt.cn/install/4/mysql.sh \
+RUN curl -o /lnmp/mysql.sh https://download.bt.cn/install/3/mysql.sh \
     && sh /lnmp/mysql.sh install 8.0
 
 # 安装 phpMyAdmin + 清理 + 配置
